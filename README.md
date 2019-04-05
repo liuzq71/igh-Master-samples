@@ -3,4 +3,4 @@
 
 2,main_dc_el2008.c - EK1100+EL1008+EL2008,程序运行后可看到EL2008的指示灯在闪
 
-3,main_dc_4slaves.c - EK1100+EL1008+El2008+IS620N伺服,程序运行后可看到EL2008的指示灯在闪,is620N伺服以CSV模式运行
+3,main_dc_4slaves.c - EK1100+EL1008+El2008+IS620N伺服,程序运行后可看到EL2008的指示灯在闪,IS620N伺服以CSV模式运行
