@@ -26,7 +26,7 @@
  *  industrial property and similar rights of Beckhoff Automation GmbH.
  *
  *  适用于汇川IS620N伺服(IS620N只有DC模式没有Free Run模式)
- *  compile: gcc -o is620n_dc is620n_dc.c -Wall -I/opt/etherlab/include -lethercat  -L/opt/etherlab/lib
+ *  compile: gcc -o is620n_dc_cst is620n_dc_cst.c -Wall -I/opt/etherlab/include -lethercat  -L/opt/etherlab/lib
  *  run: $sudo ./is620n_dc
  ****************************************************************************/
 
@@ -322,7 +322,7 @@ void cyclic_task()
             //EC_WRITE_S32(domain1_pd+tar_velo, 0xfffff);
             //EC_WRITE_S32(domain1_pd+max_torq, 0xf00);
 	   
-            EC_WRITE_S8(domain1_pd+offset.modes_operation_6060_0, 0x0a);//csp mode
+            EC_WRITE_S8(domain1_pd+offset.modes_operation_6060_0, 0x0a);//cst mode
             //EC_WRITE_S32(domain1_pd+offset.target_position_607a_0,target_position);
 	    //EC_WRITE_S32(domain1_pd+offset.target_velocity_60ff_0, 0x1000000);
             EC_WRITE_U16(domain1_pd+offset.control_word_6040_0, 0x000f);

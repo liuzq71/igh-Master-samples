@@ -25,7 +25,7 @@
  *  EtherCAT technology and brand is only permitted in compliance with the
  *  industrial property and similar rights of Beckhoff Automation GmbH.
  *
- *  $gcc -o main_dc_el2008 main_dc_el2008.c -I/opt/etherlab/include -L/opt/etherlab/lib -lethercat -lrt
+ *  $gcc -o main_dc_4slaves main_dc_4slaves.c -I/opt/etherlab/include -L/opt/etherlab/lib -lethercat -lrt
  ****************************************************************************/
 
 #include <errno.h>
@@ -365,13 +365,10 @@ void cyclic_task()
             //EC_WRITE_S32(domain1_pd+interpolateddata, 0);
             //EC_WRITE_S32(domain1_pd+tar_velo, 0xfffff);
             //EC_WRITE_S32(domain1_pd+max_torq, 0xf00);
-	    /*EC_WRITE_S32(domain1_pd+offset.modes_operation_6060_0, 9); //csv mode
-	    EC_WRITE_U32(domain1_pd+offset.target_velocity_60ff_0, 0x1000000);
-	    EC_WRITE_U16(domain1_pd+offset.control_word_6040_0, 0x000f);*/
-
-            EC_WRITE_S32(domain1_pd+offset.modes_operation_6060_0, 9);//csp mode
+	    
+            EC_WRITE_S8(domain1_pd+offset.modes_operation_6060_0, 9);//csv mode
             //EC_WRITE_U16(domain1_pd+offset.target_position_607a_0,target_position);
-	    EC_WRITE_U32(domain1_pd+offset.target_velocity_60ff_0, 0x1000000);
+	    //EC_WRITE_U32(domain1_pd+offset.target_velocity_60ff_0, 0x1000000);
             EC_WRITE_U16(domain1_pd+offset.control_word_6040_0, 0x000f);
             //printf("3.state = %x\n",temp[0]);
         }
@@ -380,6 +377,7 @@ void cyclic_task()
             //EC_WRITE_U32(domain1_pd+offset.target_velocity_60ff_0, 0x1000000);
             
             //EC_WRITE_U16(domain1_pd+offset.target_position_607a_0,(target_position+=0xfffff)); ///////
+	    EC_WRITE_U32(domain1_pd+offset.target_velocity_60ff_0, 0x1000000);
             EC_WRITE_U16(domain1_pd+offset.control_word_6040_0, 0x001f);
             //printf("4.state = %x\n",temp[0]);
         }
