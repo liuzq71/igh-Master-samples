@@ -8,3 +8,5 @@
 4,is620n_dc_csv.c - 运行后,汇川is620n伺服电机就以csv模式转动了
 
 5,is620n_dc_csp.c - 运行后,汇川is620n伺服电机就以csp模式转动了
+
+6,is620n_dc_cst.c - 运行后,汇川is620n伺服电机就以cst模式转动了
