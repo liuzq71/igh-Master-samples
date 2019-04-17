@@ -26,8 +26,9 @@
  *  industrial property and similar rights of Beckhoff Automation GmbH.
  *
  *  适用于汇川IS620N伺服(IS620N只有DC模式没有Free Run模式)
- *  compile: gcc -o is620n_dc_csv is620n_dc_csv.c -Wall -I/opt/etherlab/include -lethercat  -L/opt/etherlab/lib
- *  run: $sudo ./is620n_dc
+ *  compile: gcc -o is620n_dc_csv is620n_dc_csv.c -Wall -I/opt/etherlab/include -L/opt/etherlab/lib -Wl,--rpath=/opt/etherlab/lib -lethercat -rt
+ *  run: $sudo ./is620n_dc_csv
+ *  必须使用igh提供的实时网卡驱动，使用ec_generic.ko的话伺服会出现Er.08(过程数据错)
  ****************************************************************************/
 
 #include <errno.h>
@@ -53,7 +54,7 @@
 /****************************************************************************/
 
 // Application parameters
-#define FREQUENCY 500
+#define FREQUENCY 1000 //500
 #define CLOCK_TO_USE CLOCK_REALTIME
 #define CONFIGURE_PDOS 1
 
@@ -262,7 +263,7 @@ void cyclic_task()
 {
     uint32_t target_position = 0xfffff;
 
-    struct timespec wakeupTime, time;
+    struct timespec wakeupTime, time,rx_time_start,rx_time_end,tx_time_start,tx_time_end;
     // get current time
     clock_gettime(CLOCK_TO_USE, &wakeupTime);
 
@@ -276,8 +277,14 @@ void cyclic_task()
         clock_nanosleep(CLOCK_TO_USE, TIMER_ABSTIME, &wakeupTime, NULL);
 
 	ecrt_master_application_time(master,TIMESPEC2NS(wakeupTime)); //added by me
-
+#if 0
+clock_gettime(CLOCK_TO_USE, &rx_time_start);
+#endif
         ecrt_master_receive(master);
+#if 0
+clock_gettime(CLOCK_TO_USE, &rx_time_end);
+printf("rx:%ldns     ",(rx_time_end.tv_sec-rx_time_start.tv_sec)*NSEC_PER_SEC+rx_time_end.tv_nsec-rx_time_start.tv_nsec);
+#endif
         ecrt_domain_process(domain1);
 
         //printf("\r%6f    \t    ",((float)temp[1]/1000) );
@@ -298,7 +305,7 @@ void cyclic_task()
 
 	temp[0]=EC_READ_U16(domain1_pd + offset.status_word_6041_0);
         temp[1]=EC_READ_U32(domain1_pd + offset.position_actual_value_6064_0);
-	printf("\r%6f    \t    ",((float)temp[1]/1000) );
+	//printf("\r%6f    \t    ",((float)temp[1]/1000) );
         //printf("after value = %x\n",temp[0]);
         // write process data
         /*if(servooff==1){//servo off
@@ -357,8 +364,14 @@ void cyclic_task()
         //send process data
         ecrt_domain_queue(domain1);
         //ecrt_domain_queue(domain2);
-
+#if 0
+clock_gettime(CLOCK_TO_USE, &tx_time_start);
+#endif
         ecrt_master_send(master);
+#if 0
+clock_gettime(CLOCK_TO_USE, &tx_time_end);
+printf("tx:%ldns\n",(tx_time_end.tv_sec-tx_time_start.tv_sec)*NSEC_PER_SEC+tx_time_end.tv_nsec-tx_time_start.tv_nsec);
+#endif
     }
 }
 
@@ -404,8 +417,10 @@ int main(int argc, char **argv)
 //配置IS620结束
 	
     //ecrt_slave_config_dc(sc, 0x0300, 4000000, 125000, 0, 0);
-    ecrt_slave_config_dc(sc, 0x0300, 4000000, 4000000/2, 0, 0);  
+    //ecrt_slave_config_dc(sc, 0x0300, 4000000, 4000000/2, 0, 0);  //orig
     //ecrt_slave_config_dc(sc, 0x0300, 2000000, 2000000/2, 0, 0);//不行
+    ecrt_slave_config_dc(sc, 0x0300, 3000000, 3000000/2, 0, 0);//行
+    //ecrt_slave_config_dc(sc, 0x0300, 1500000, 1500000/2, 0, 0);//不行
 
     printf("Activating master...\n");
 	

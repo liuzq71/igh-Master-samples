@@ -26,8 +26,9 @@
  *  industrial property and similar rights of Beckhoff Automation GmbH.
  *
  *  适用于汇川IS620N伺服(IS620N只有DC模式没有Free Run模式)
- *  compile: gcc -o is620n_dc_csp is620n_dc_csp.c -Wall -I/opt/etherlab/include -lethercat  -L/opt/etherlab/lib
- *  run: $sudo ./is620n_dc
+ *  compile: gcc -o is620n_dc_csp is620n_dc_csp.c -Wall -I/opt/etherlab/include -L/opt/etherlab/lib -Wl,--rpath=/opt/etherlab/lib -lethercat -lrt
+ *  run: $sudo ./is620n_dc_csp
+ *  必须使用igh提供的实时网卡驱动，使用ec_generic.ko的话伺服会出现Er.08(过程数据错)
  ****************************************************************************/
 
 #include <errno.h>
