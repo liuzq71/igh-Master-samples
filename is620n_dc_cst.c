@@ -26,9 +26,9 @@
  *  industrial property and similar rights of Beckhoff Automation GmbH.
  *
  *  适用于汇川IS620N伺服(IS620N只有DC模式没有Free Run模式)
- *  compile: gcc -o is620n_dc_cst is620n_dc_cst.c -Wall -I/opt/etherlab/include -L/opt/etherlab/lib -Wl,--rpath=/opt/etherlab/lib -lethercat -rt
+ *  compile: gcc -o is620n_dc_cst is620n_dc_cst.c -Wall -I/opt/etherlab/include -L/opt/etherlab/lib -Wl,--rpath=/opt/etherlab/lib -lethercat -lrt
  *  run: $sudo ./is620n_dc_cst
- * 必须使用igh提供的实时网卡驱动，使用ec_generic.ko的话伺服会出现Er.08(过程数据错)
+ *  必须使用igh提供的实时网卡驱动，使用ec_generic.ko的话伺服会出现Er.E08(过程数据错)
  ****************************************************************************/
 
 #include <errno.h>
@@ -54,7 +54,7 @@
 /****************************************************************************/
 
 // Application parameters
-#define FREQUENCY 500
+#define FREQUENCY  1000//500
 #define CLOCK_TO_USE CLOCK_REALTIME
 #define CONFIGURE_PDOS 1
 
@@ -281,7 +281,7 @@ void cyclic_task()
         ecrt_master_receive(master);
         ecrt_domain_process(domain1);
 
-        printf("\r%6f    \t    ",((float)temp[1]/1000) );
+        //printf("\r%6f    \t    ",((float)temp[1]/1000) );
 
         if(counter) {
             counter--;
@@ -334,7 +334,7 @@ void cyclic_task()
             //EC_WRITE_U32(domain1_pd+offset.target_velocity_60ff_0, 0x1000000);
             
             //EC_WRITE_U16(domain1_pd+offset.target_position_607a_0,(target_position+=0xfff)); ///////
-	    EC_WRITE_S16(domain1_pd+offset.target_torque_6071_0, 2000);
+	    EC_WRITE_S16(domain1_pd+offset.target_torque_6071_0, 1000);
             EC_WRITE_U16(domain1_pd+offset.control_word_6040_0, 0x001f);
             //printf("4.state = %x\n",temp[0]);
         }
@@ -406,8 +406,8 @@ int main(int argc, char **argv)
 //配置IS620结束
 	
     //ecrt_slave_config_dc(sc, 0x0300, 4000000, 125000, 0, 0);
-    ecrt_slave_config_dc(sc, 0x0300, 4000000, 4000000/2, 0, 0);  
-    //ecrt_slave_config_dc(sc, 0x0300, 2000000, 2000000/2, 0, 0);//不行
+    //ecrt_slave_config_dc(sc, 0x0300, 4000000, 4000000/2, 0, 0);  
+    ecrt_slave_config_dc(sc, 0x0300, 2000000, 2000000/2, 0, 0);//不行
 
     printf("Activating master...\n");
 	

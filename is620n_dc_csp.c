@@ -28,7 +28,7 @@
  *  适用于汇川IS620N伺服(IS620N只有DC模式没有Free Run模式)
  *  compile: gcc -o is620n_dc_csp is620n_dc_csp.c -Wall -I/opt/etherlab/include -L/opt/etherlab/lib -Wl,--rpath=/opt/etherlab/lib -lethercat -lrt
  *  run: $sudo ./is620n_dc_csp
- *  必须使用igh提供的实时网卡驱动，使用ec_generic.ko的话伺服会出现Er.08(过程数据错)
+ *  必须使用igh提供的实时网卡驱动，使用ec_generic.ko的话伺服会出现Er.E08(过程数据错)
  ****************************************************************************/
 
 #include <errno.h>
@@ -54,7 +54,7 @@
 /****************************************************************************/
 
 // Application parameters
-#define FREQUENCY 500
+#define FREQUENCY 1000 //500
 #define CLOCK_TO_USE CLOCK_REALTIME
 #define CONFIGURE_PDOS 1
 
@@ -301,7 +301,7 @@ void cyclic_task()
 
 	temp[0]=EC_READ_U16(domain1_pd + offset.status_word_6041_0);
         temp[1]=EC_READ_U32(domain1_pd + offset.position_actual_value_6064_0);if(once==0) {target_position=temp[1];once++;}
-	printf("\r%6f    \t    ",((float)temp[1]/1000) );
+	//printf("\r%6f    \t    ",((float)temp[1]/1000) );
         //printf("after value = %x\n",temp[0]);
         // write process data
         /*if(servooff==1){//servo off
@@ -401,8 +401,8 @@ int main(int argc, char **argv)
 //配置IS620结束
 	
     //ecrt_slave_config_dc(sc, 0x0300, 4000000, 125000, 0, 0);
-    ecrt_slave_config_dc(sc, 0x0300, 4000000, 4000000/2, 0, 0);  
-    //ecrt_slave_config_dc(sc, 0x0300, 2000000, 2000000/2, 0, 0);//不行
+    //ecrt_slave_config_dc(sc, 0x0300, 4000000, 4000000/2, 0, 0);  
+    ecrt_slave_config_dc(sc, 0x0300, 2000000, 2000000/2, 0, 0);//行
 
     printf("Activating master...\n");
 	
