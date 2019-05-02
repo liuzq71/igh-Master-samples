@@ -24,7 +24,7 @@
  *  The license mentioned above concerns the source code only. Using the
  *  EtherCAT technology and brand is only permitted in compliance with the
  *  industrial property and similar rights of Beckhoff Automation GmbH.
- *  这个例子实时性更好,在preempt rt下,使用ec_generic.ko都跑得不停顿(不发生ER.E08错)
+ *  这个例子在rtai下使用
  *build:
    $gcc -o is620n_dc_rt_csv is620n_dc_rt_csv.c -I/opt/etherlab/include -I/opt/rtai-5.1/include -L/opt/rtai-5.1/lib -L/opt/etherlab/lib -llxrt -lrtdm -lethercat -lpthread -Wl,--rpath=/opt/rtai-5.1/lib -Wl,--rpath=/opt/etherlab/lib
  *run:
@@ -49,13 +49,9 @@
 
 #include "ecrt.h"
 
-//#include <time.h>
-//#include <errno.h>
-//#include "ipipe_64.h"
-
 #define rt_printf(X, Y)
 
-#define CLOCK_TO_USE CLOCK_MONOTONIC //CLOCK_REALTIME
+//#define CLOCK_TO_USE CLOCK_MONOTONIC //CLOCK_REALTIME
 #define NSEC_PER_SEC 1000000000
 
 RT_TASK *task;
@@ -267,9 +263,9 @@ uint64_t system_time_ns(void)
     RTIME time = rt_get_time_ns();
 
     if (system_time_base > time) {
-        /*rt_printk("%s() error: system_time_base greater than"
+        rt_printk("%s() error: system_time_base greater than"
                 " system time (system_time_base: %lld, time: %llu\n",
-                __func__, system_time_base, time);*/
+                __func__, system_time_base, time);
         return time;
     }
     else {
@@ -451,7 +447,6 @@ void rt_check_master_state(void)
 /** Wait for the next period
  */
 
-#if 1
 void wait_period(void)
 {
     while (1)
@@ -494,50 +489,7 @@ void wait_period(void)
     // calc next wake time (in sys time)
     wakeup_time += cycle_ns;
 }
-#endif
 
-#if 0
-void wait_period(void)
-{
-    while (1)
-    {
-        RTIME wakeup_count = system2count(wakeup_time);
-        RTIME current_count = rt_get_time();
-
-        if ((wakeup_count < current_count)
-                || (wakeup_count > current_count + (50 * cycle_ns))) {
-            //rt_printk("%s(): unexpected wake time!\n", __func__);
-        }
-
-	struct timespec wakeupTime;
-	/*wakeupTime.tv_sec= wakeup_time / NSEC_PER_SEC;
-	wakeupTime.tv_nsec= wakeup_time % NSEC_PER_SEC;
-	
-        int s =clock_nanosleep(CLOCK_TO_USE, TIMER_ABSTIME, &wakeupTime, NULL);*/
-
-	wakeupTime.tv_sec= cycle_ns / NSEC_PER_SEC;
-	wakeupTime.tv_nsec= cycle_ns % NSEC_PER_SEC;
-	
-        int s =clock_nanosleep(CLOCK_TO_USE, 0, &wakeupTime, NULL);
-
-        if (s != 0) { //避免过度睡眠
-            if (s == EINTR)
-               printf("Interrupted by signal handler\n");
-            else
-               printf("clock_nanosleep:errno=%d\n",s);
-        }
-
-        // done if we got to here
-        break;
-    }
-
-    // set master time in nano-seconds
-    ecrt_master_application_time(master, wakeup_time);
-
-    // calc next wake time (in sys time)
-    wakeup_time += cycle_ns;
-}
-#endif
 /****************************************************************************/
 
 void my_cyclic(void)
@@ -586,7 +538,7 @@ void my_cyclic(void)
 
 	//is620n control
 	temp[0]=EC_READ_U16(domain1_pd + offset.status_word_6041_0);
-        temp[1]=EC_READ_U32(domain1_pd + offset.position_actual_value_6064_0);
+    temp[1]=EC_READ_U32(domain1_pd + offset.position_actual_value_6064_0);
 	//printf("\r%6f    \t    ",((float)temp[1]/1000) );
       
         // write process data
